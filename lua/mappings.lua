@@ -4,8 +4,8 @@ local map = vim.keymap.set
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
-map("n", "<leader>tt", ":TroubleToggle<CR>", { desc = "Toggle lsp overview" })
-map("n", "<leader>uu", ":BatchUpdate<CR>", { desc = "Batch update" })
+map("n", "<leader>tt", ":Trouble diagnostics toggle filter.buf=0<CR>", { desc = "Toggle diagnostics pane" })
+map("n", "<leader>ts", ":Trouble symbols toggle pinned=true results.win.relative=win<CR>", { desc = "Toggle symbols pane" })
 
 -- Use seachbox to find and/or replace all matching words
 map("n", "<leader>fi", ":SearchBoxMatchAll<CR>", { desc = "Find all matching words" })
@@ -32,12 +32,3 @@ end, { desc = "Open neogit" })
 -- Don't exit out of visual mode even after changing indent
 map("x", "<", "<gv", { noremap = true, silent = true })
 map("x", ">", ">gv", { noremap = true, silent = true })
-
--- Zen mode
-map("n", "<leader>zn", function()
-  require("zen-mode").toggle()
-end, { desc = "Zen mode" })
-
--- Todo Comments
-map("n", "<leader>ft", ":TodoTelescope<CR>", { desc = "Telescope find all TODOs" })
-map("n", "<leader>td", ":TodoTrouble<CR>", { desc = "Trouble find all TODOs" })

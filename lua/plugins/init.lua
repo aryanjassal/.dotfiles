@@ -1,18 +1,8 @@
 return {
   {
     "stevearc/conform.nvim",
-    -- event = "BufWritePre",
     config = function()
       require "configs.conform"
-    end,
-  },
-
-  {
-    "NvChad/nvim-colorizer.lua",
-    config = function()
-      require("colorizer").setup {
-        filetypes = { "css" },
-      }
     end,
   },
 
@@ -50,18 +40,20 @@ return {
   },
 
   {
-    "numToStr/Comment.nvim",
-    dependencies = "JoosepAlviste/nvim-ts-context-commentstring",
-    config = function()
-      require("Comment").setup {
-        pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
-      }
-    end,
-  },
-
-  {
-    "VonHeikemen/searchbox.nvim",
-    dependencies = "MunifTanjim/nui.nvim",
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      keywords = {
+        FIX = { icon = " ", color = "error", alt = { "FIXME", "BUG", "FIXIT", "ISSUE" } },
+        TODO = { icon = " ", color = "warning" },
+        HACK = { icon = " ", color = "warning" },
+        WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
+        PERF = { icon = " ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+        NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
+        TEST = { icon = "󰦒 ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+      },
+    },
+    lazy = false,
   },
 
   {
@@ -85,24 +77,40 @@ return {
     opts = function()
       local conf = require "nvchad.configs.gitsigns"
       conf.signs.delete = { text = "│" }
+      conf.signs.changedelete = { text = "~" }
     end,
   },
 
   {
-    "gorbit99/codewindow.nvim",
-    config = true,
+    "hrsh7th/nvim-cmp",
+    opts = function()
+      local style = "default"
+      local arrangement = {
+        atom = { "kind", "abbr", "menu" },
+        default = { "abbr", "kind", "menu" },
+      }
+      local conf = require "nvchad.configs.cmp"
+      conf.performance = { max_view_entries = 6 }
+      conf.formatting = {
+        fields = arrangement[style],
+        format = function(_, item)
+          local icons = require "nvchad.icons.lspkind"
+          local icon = icons[item.kind] or ""
 
-    init = function()
-      require("codewindow").apply_default_keybinds()
+          if style == "atom" then
+            icon = " " .. icon .. " "
+            item.menu = ("   (" .. item.kind .. ")") or ""
+            item.kind = icon
+          else
+            icon = (" " .. icon .. " ") or icon
+            item.menu = ""
+            item.kind = string.format("%s %s", icon, item.kind or "")
+          end
+
+          return item
+        end,
+      }
     end,
-  },
-
-  {
-    "folke/zen-mode.nvim",
-  },
-
-  {
-    "folke/twilight.nvim",
   },
 
   {
@@ -116,49 +124,22 @@ return {
   },
 
   {
-    "folke/todo-comments.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim",
-      "folke/trouble.nvim",
-    },
-
-    opts = {
-      keywords = {
-        FIX = { icon = " ", color = "error", alt = { "FIXME", "BUG", "FIXIT", "ISSUE" } },
-        TODO = { icon = " ", color = "warning" },
-        HACK = { icon = " ", color = "warning" },
-        WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
-        PERF = { icon = " ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
-        NOTE = { icon = " ", alt = { "INFO" } },
-        TEST = { icon = "⏲ ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
-      },
-    },
-
-    config = true,
-    lazy = false,
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    config = function()
+      require("ts_context_commentstring").setup {
+        enable_autocmd = false,
+      }
+    end,
   },
 
-  -- -- I need to enable Discord RPC first T_T
-  -- {
-  --   "andweeb/presence.nvim",
-  --   config = function()
-  --     require("presence").setup {
-  --       -- General options
-  --       auto_update = true,
-  --       neovim_image_text = "The One True Text Editor",
-  --       main_image = "neovim",
-  --       debounce_timeout = 10,
-  --       blacklist = {"polykey", "infered", "matrix"},
-  --       show_time = true,
-  --
-  --       -- Rich Presence text options
-  --       editing_text = "Editing %s",
-  --       file_explorer_text = "Browsing %s",
-  --       reading_text = "Reading %s",
-  --       workspace_text = "Working on %s",
-  --       line_number_text = "Line %s out of %s",
-  --     }
-  --   end,
-  -- },
+  {
+    "numToStr/Comment.nvim",
+    config = function()
+      require("Comment").setup {
+        pre_hook = function()
+          return vim.bo.commentstring
+        end,
+      }
+    end,
+  },
 }
